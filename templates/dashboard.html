@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Dashboard</title>
+    </head>
+    <body>
+        <h2>Welcome, {{ user.email }}!</h2>
+        Here is your Dashboard. <br>
+        
+        <h3>Your Details:</h3>
+        Name: {{ user.name or 'Not provided' }}<br>
+        Phone: {{ user.phone or 'Not provided' }}<br>
+        Address: {{ user.address or 'Not provided' }}<br>
+        Pincode: {{ user.pincode or 'Not provided' }}<br>
+        
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </body>
+</html>

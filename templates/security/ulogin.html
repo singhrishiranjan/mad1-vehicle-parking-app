@@ -6,11 +6,14 @@
     </head>
     <body>
             <form id = "auth_form" action = "{{url_for('login')}}" method = "POST">
-            <input type = "email" id = "email" name = "email" placeholder = "Registered gEmail Id" required> <br>
+            <input type = "email" id = "email" name = "email" placeholder = "Registered Email Id" required> <br>
             <input type = "password" id = "password" name = "password" placeholder = "Password" required> <br>
-            <input type = "submit" value = "Submit">
+            <input type = "submit" value = "Login">
 
             </form>
+
+            Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+            
             {% if error %}
                 <div style="color: red;">{{ error }}</div>
             {% endif %}
