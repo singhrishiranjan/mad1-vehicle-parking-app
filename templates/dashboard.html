@@ -7,11 +7,44 @@
         <h2>Welcome, {{ user.email }}!</h2>
         Here is your Dashboard. <br>
         
-        <h3>Your Details:</h3>
-        Name: {{ user.name or 'Not provided' }}<br>
-        Phone: {{ user.phone or 'Not provided' }}<br>
-        Address: {{ user.address or 'Not provided' }}<br>
-        Pincode: {{ user.pincode or 'Not provided' }}<br>
+        <p>
+            <h4>Reserve a spot for Parking</h4>
+            <form id="spot_search" action = "{{url_for('search')}}" method="GET">
+                <input type = "text" id = "search" placeholder="Location/Pincode/Area" name = "query" required> 
+                <input type = "submit" value = "Search">
+            </form>
+        </p>
+            {% if results is defined %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Prime Location</th>
+                            <th>Address</th>
+                            <th>Pincode</th>
+                            <th>Spot No.</th>
+                            <th>Vehicle Type</th>
+                            <th>Cost per hour</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if results %}
+                            {% for result in results %}
+                            <tr>
+                                <td>{{ result.lot.prime_location_name }}</td>
+                                <td>{{ result.lot.address }}</td>
+                                <td>{{ result.lot.pincode }}</td>
+                                <td>{{ result.spot_number }}</td>
+                                <td>{{ result.vehicle_type }}</td>
+                                <td>{{ result.lot.cost_per_hour }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="6">No results found</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% endif %}
+
         
         <a href="{{ url_for('logout') }}">Logout</a>
     </body>
