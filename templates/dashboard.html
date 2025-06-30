@@ -35,7 +35,11 @@
                                 <td>{{ result.lot.pincode }}</td>
                                 <td>{{ result.spot_number }}</td>
                                 <td>{{ result.vehicle_type }}</td>
-                                <td>{{ result.lot.cost_per_hour }}</td>
+                                <td>{{ result.price_per_hour }}</td>
+                                <td><form method="POST" action="{{ url_for('booking_confirmation') }}">
+                                        <input type="hidden" name="spot_id" value="{{ result.id }}">
+                                        <button type="submit">Book</button>
+                                    </form></td>
                             </tr>
                             {% endfor %}
                         {% else %}

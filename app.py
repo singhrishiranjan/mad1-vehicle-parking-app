@@ -2,9 +2,9 @@ from flask import Flask, render_template, request, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_utils import EmailType
 from flask_admin import Admin, AdminIndexView
-
 from flask_admin.contrib.sqla import ModelView
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your_security_key'
@@ -69,6 +69,7 @@ class Reservation(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     parking_timestamp = db.Column(db.DateTime, nullable=False)
     leaving_timestamp = db.Column(db.DateTime)
+    vehicle_number = db.Column(db.String(20))
     total_cost = db.Column(db.Float)
     spot = db.relationship('ParkingSpot', back_populates = 'reservations')
     user = db.relationship('User', back_populates = 'reservations')
@@ -91,13 +92,13 @@ class SecureModelView(ModelView):
     def inaccessible_callback(self, name):
         return redirect(url_for('login'))
 
-class UserAdmin(ModelView):
+class UserAdmin(SecureModelView):
     column_list = ['id', 'email', 'name', 'is_admin']
 
-class ParkingLotAdmin(ModelView):
+class ParkingLotAdmin(SecureModelView):
     column_list = ['id', 'prime_location_name', 'address', 'pincode', 'contact_number', 'is_active']
     
-class ParkingSpotAdmin(ModelView):
+class ParkingSpotAdmin(SecureModelView):
     column_list = ['id', 'lot', 'spot_number','price_per_hour', 'status', 'vehicle_type', 'is_reserved']
     form_columns = ['lot', 'spot_number', 'price_per_hour', 'status', 'vehicle_type', 'is_reserved']
     
@@ -109,7 +110,7 @@ class ParkingSpotAdmin(ModelView):
         }
     }
 
-class ReservationAdmin(ModelView):
+class ReservationAdmin(SecureModelView):
     column_list = ['id', 'spot', 'user', 'parking_timestamp', 'leaving_timestamp', 'total_cost']
     form_columns = ['spot', 'user', 'parking_timestamp', 'leaving_timestamp', 'total_cost']
 
@@ -131,10 +132,11 @@ class ReservationAdmin(ModelView):
 app.config['FLASK_ADMIN_SWATCH'] = 'cosmo'
 admin = Admin(app, name='Admin Panel', template_mode='bootstrap3', index_view=MyAdminIndexView())
 
-admin.add_view(SecureModelView(User, db.session))
-admin.add_view(SecureModelView(ParkingLot, db.session))
-admin.add_view(SecureModelView(ParkingSpot, db.session))
-admin.add_view(SecureModelView(Reservation, db.session))
+admin.add_view(UserAdmin(User, db.session))
+admin.add_view(ParkingLotAdmin(ParkingLot, db.session))
+admin.add_view(ParkingSpotAdmin(ParkingSpot, db.session))
+admin.add_view(ReservationAdmin(Reservation, db.session))
+
 
 # Create admin user if not exists
 def create_admin_user():
@@ -220,13 +222,52 @@ def search():
         q = request.args.get('query')
         results = []
         if q:
-            results = ParkingSpot.query.join(ParkingLot).filter(or_(
-                    ParkingLot.prime_location_name.ilike(f"%{q}%"),
-                    ParkingLot.pincode.ilike(f"%{q}%"),
-                    ParkingLot.address.ilike(f"%{q}%")
-                )).limit(10).all()
+            results = ParkingSpot.query.join(ParkingLot).filter(
+                and_(
+                    or_(
+                        ParkingLot.prime_location_name.ilike(f"%{q}%"),
+                        ParkingLot.pincode.ilike(f"%{q}%"),
+                        ParkingLot.address.ilike(f"%{q}%")
+                    ),
+                    ParkingSpot.is_reserved == False
+                )
+            ).limit(10).all()
 
         return render_template("dashboard.html", user = user, results = results)
+    
+@app.route('/booking-confirmation', methods = ['POST', 'GET'])
+def booking_confirmation():
+    if request.method == 'POST':
+        spot_id = request.form.get('spot_id')
+        spot = ParkingSpot.query.get(spot_id)
+        user = User.query.filter_by(email=session['email']).first()
+        if spot and user:
+            return render_template('booking.html', spot=spot)
+        else:
+            return "Invalid spot", 400
+
+    return redirect(url_for('dashboard'), user=user)
+
+@app.route('/bookspot', methods=['POST'])
+def bookspot():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+
+    spot_id = request.form.get('spot_id')
+    user = User.query.filter_by(email=session['email']).first()
+    spot = ParkingSpot.query.get(spot_id)
+    parking_timestamp = datetime.now()
+
+    if spot and user:
+        reservation = Reservation(
+            spot_id=spot.id,
+            user_id=user.id,
+            parking_timestamp=parking_timestamp,
+        )
+        spot.is_reserved = True
+        db.session.add(reservation)
+        db.session.commit()
+        return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':

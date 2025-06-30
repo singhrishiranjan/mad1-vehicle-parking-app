@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <h1>Book a Spot!</h1>
+        <form action="{{url_for('bookspot')}}" method="POST">
+
+            <input type="hidden" name="spot_id" value="{{ spot.id }}">
+
+            <label for="lot_prime_location">Lot Prime Location:</label><br>
+            <input type="text" id="lot_location" name="lot_prime_location" value="{{spot.lot.prime_location_name}}" readonly><br><br>
+
+            <label for="lot_address">Lot Address:</label><br>
+            <input type="text" id="lot_address" name="lot_address" value="{{spot.lot.address}}" readonly><br><br>
+
+            <label for="pincode">Pincode:</label><br>
+            <input type="text" id="pincode" name="pincode" value="{{spot.lot.pincode}}" readonly><br><br>
+
+            <label for="spot_number">Spot Number:</label><br>
+            <input type="text" id="spot_number" name="spot_number" value="{{spot.spot_number}}" readonly><br><br>
+
+            <label for="vehicle_type">Vehicle Type:</label><br>
+            <input type="text" id="vehicle_type" name="vehicle_type" value="{{spot.vehicle_type}}" readonly><br><br>
+
+            <label for="vehicle_number">Vehicle Number:</label><br>
+            <input type="text" id="vehicle_number" name="vehicle_number" required><br><br>
+
+            <button type="submit">Submit</button>
+        </form>
+        <p>Click <a href="dashboard.html">here</a> to view all bookings.</p>
+
+    </body>
+</html>
