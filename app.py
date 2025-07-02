@@ -19,7 +19,7 @@ db = SQLAlchemy(app)
 class User(db.Model):
     # Class Variables
     id  = db.Column(db.Integer, primary_key = True, autoincrement = True)
-    email = db.Column(EmailType, unique=True, nullable=False)
+    email = db.Column(EmailType, nullable=False)
     password = db.Column(db.String(150), nullable = False)
     name = db.Column(db.String(100))
     phone = db.Column(db.String(10))
@@ -42,8 +42,6 @@ class ParkingLot(db.Model):
     address = db.Column(db.String(255), nullable=False)
     pincode = db.Column(db.String(10), nullable=False)
     contact_number = db.Column(db.String(15))
-    description = db.Column(db.Text)
-    image_url = db.Column(db.String(255))
     is_active = db.Column(db.Boolean, default=True)
     spots = db.relationship('ParkingSpot', back_populates='lot')
     def __repr__(self):
@@ -54,7 +52,6 @@ class ParkingSpot(db.Model):
     lot_id = db.Column(db.Integer, db.ForeignKey('parking_lot.id'), nullable=False)
     spot_number = db.Column(db.String(10), nullable=False) # like 'A1'
     price_per_hour = db.Column(db.Integer, nullable=False, default=0)
-    status = db.Column(db.String(1), default='A')  # 'A' for available, 'O' for occupied
     vehicle_type = db.Column(db.String(20), default='4-wheeler')  # Can be '2-wheeler' etc.
     is_reserved = db.Column(db.Boolean, default=False)
     lot = db.relationship('ParkingLot', back_populates='spots')
@@ -94,13 +91,20 @@ class SecureModelView(ModelView):
 
 class UserAdmin(SecureModelView):
     column_list = ['id', 'email', 'name', 'is_admin']
+    form_columns = ['email', 'password', 'name', 'phone', 'address', 'pincode', 'is_admin']
+    can_create = True
+    can_edit = False
+    can_delete = True
+    column_sortable_list = ['id', 'name', 'is_admin']
+    column_searchable_list = ['id', 'name', 'phone', 'address', 'pincode']
+    column_default_sort = 'id'
 
 class ParkingLotAdmin(SecureModelView):
     column_list = ['id', 'prime_location_name', 'address', 'pincode', 'contact_number', 'is_active']
     
 class ParkingSpotAdmin(SecureModelView):
-    column_list = ['id', 'lot', 'spot_number','price_per_hour', 'status', 'vehicle_type', 'is_reserved']
-    form_columns = ['lot', 'spot_number', 'price_per_hour', 'status', 'vehicle_type', 'is_reserved']
+    column_list = ['id', 'lot', 'spot_number','price_per_hour', 'vehicle_type', 'is_reserved']
+    form_columns = ['lot', 'spot_number', 'price_per_hour', 'vehicle_type', 'is_reserved']
     
     # Use form_ajax_refs for the relationship field
     form_ajax_refs = {
@@ -213,7 +217,14 @@ def dashboard():
         return redirect(url_for('login'))
     
     user = User.query.filter_by(email=session['email']).first()
-    return render_template('dashboard.html', user=user)
+    history = Reservation.query.join(User).filter(User.email == session['email']).all()
+    return render_template('dashboard.html', user=user, history =history)
+
+
+
+
+
+
 
 @app.route('/search', methods = ['GET','POST'])
 def search():
@@ -233,8 +244,9 @@ def search():
                 )
             ).limit(10).all()
 
-        return render_template("dashboard.html", user = user, results = results)
-    
+            history = Reservation.query.join(User).filter(User.email == session['email']).all()
+            return render_template("dashboard.html", user=user, results=results, history=history)
+        
 @app.route('/booking-confirmation', methods = ['POST', 'GET'])
 def booking_confirmation():
     if request.method == 'POST':
@@ -243,10 +255,6 @@ def booking_confirmation():
         user = User.query.filter_by(email=session['email']).first()
         if spot and user:
             return render_template('booking.html', spot=spot)
-        else:
-            return "Invalid spot", 400
-
-    return redirect(url_for('dashboard'), user=user)
 
 @app.route('/bookspot', methods=['POST'])
 def bookspot():
@@ -267,7 +275,30 @@ def bookspot():
         spot.is_reserved = True
         db.session.add(reservation)
         db.session.commit()
-        return redirect(url_for('dashboard'))
+        history = Reservation.query.join(User).filter(User.email == session['email']).all()
+        return render_template("dashboard.html", user=user, history=history)
+        
+@app.route('/release', methods = ['POST'])
+def release():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    
+    reservation_id = request.form.get('reservation_id')
+    reservation = Reservation.query.filter(Reservation.id == reservation_id).first()
+    spot = ParkingSpot.query.filter(ParkingSpot.id == reservation.spot_id).first()
+    user = User.query.filter_by(email=session['email']).first()
+    parking_timestamp = reservation.parking_timestamp
+    leaving_timestamp = datetime.now()
+    hours_parked = (leaving_timestamp - parking_timestamp).total_seconds() / 3600
+
+    if user and reservation:
+        spot.is_reserved = False
+        reservation.leaving_timestamp = leaving_timestamp
+        reservation.total_cost = spot.price_per_hour * hours_parked
+        db.session.commit()
+        history = Reservation.query.join(User).filter(User.email == session['email']).all()
+        return render_template("dashboard.html", user=user, history=history)
+        
 
 
 if __name__ == '__main__':

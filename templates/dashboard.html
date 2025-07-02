@@ -6,7 +6,63 @@
     <body>
         <h2>Welcome, {{ user.email }}!</h2>
         Here is your Dashboard. <br>
-        
+
+        <p>
+            <h3>
+                Your Recent Parking History
+            </h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Prime Location</th>
+                        <th>Address</th>
+                        <th>Pincode</th>
+                        <th>Spot No.</th>
+                        <th>Parking Timestamp</th>
+                        <th>Leaving Timestamp</th>
+                        <th>Total Cost</th>
+                        <th>Contact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if history %}
+                    {%for item in history%}
+                    <tr>
+                        <td>{{ item.spot.lot.prime_location_name }}</td>
+                        <td>{{ item.spot.lot.address }}</td>
+                        <td>{{ item.spot.lot.pincode }}</td>
+                        <td>{{ item.spot.spot_number }}</td>
+                        <td>{{ item.parking_timestamp.strftime('%d/%m/%Y %I:%M %p') }}</td>
+                        <td>{{ item.leaving_timestamp.strftime('%d/%m/%Y %I:%M %p') if item.leaving_timestamp else 'Active' }}</td>
+                        <td>
+                            {% if item.total_cost %}
+                                {{ "%.2f"|format(item.total_cost) }}
+                            {% else %}
+                                Not calculated
+                            {% endif %}
+                        </td>
+                        <td>{{ item.spot.lot.contact_number }}</td>
+                        <td>
+                            {% if not item.leaving_timestamp %}
+                            <form method = "POST" action = "{{ url_for('release') }}">
+                                <input type = 'hidden' name = 'reservation_id' value = "{{ item.id }}">
+                                <button type = 'submit'> Release </button>
+                            </form>
+                            {% else %}
+                            <button disabled> Parked Out </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+                    {% endif %}
+                </tbody>
+            </table>
+
+            
+        </p>
+
         <p>
             <h4>Reserve a spot for Parking</h4>
             <form id="spot_search" action = "{{url_for('search')}}" method="GET">
@@ -14,6 +70,8 @@
                 <input type = "submit" value = "Search">
             </form>
         </p>
+
+        <p>
             {% if results is defined %}
                 <table>
                     <thead>
@@ -24,6 +82,7 @@
                             <th>Spot No.</th>
                             <th>Vehicle Type</th>
                             <th>Cost per hour</th>
+                            <th>Contact</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,7 +95,9 @@
                                 <td>{{ result.spot_number }}</td>
                                 <td>{{ result.vehicle_type }}</td>
                                 <td>{{ result.price_per_hour }}</td>
-                                <td><form method="POST" action="{{ url_for('booking_confirmation') }}">
+                                <td>{{ result.lot.contact_number }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('booking_confirmation') }}">
                                         <input type="hidden" name="spot_id" value="{{ result.id }}">
                                         <button type="submit">Book</button>
                                     </form></td>
@@ -48,7 +109,7 @@
                     </tbody>
                 </table>
             {% endif %}
-
+        </p>
         
         <a href="{{ url_for('logout') }}">Logout</a>
     </body>
