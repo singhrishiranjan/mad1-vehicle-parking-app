@@ -190,9 +190,9 @@ def register():
         email = request.form['email']
         password = request.form['password']
         user = User.query.filter_by(email = email).first()
-        phone = request.form.get('phone')
-        address = request.form.get('address')
-        pincode = request.form.get('pincode')
+        phone = request.form['phone']
+        address = request.form['address']
+        pincode = request.form['pincode']
 
         if user:
             return render_template("security/uregist.html", error = "User already exists")
@@ -218,9 +218,47 @@ def dashboard():
     
     user = User.query.filter_by(email=session['email']).first()
     history = Reservation.query.join(User).filter(User.email == session['email']).all()
-    return render_template('dashboard.html', user=user, history =history)
+    return render_template('dashboard.html', user=user, history = history)
 
+@app.route('/profile', methods = ['GET', 'POST'])
+def profile():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    user = User.query.filter_by(email = session['email']).first()
+    if user.is_admin is True:
+        return render_template('admin/profile.html', user = user)
+    return render_template('profile.html', user = user)
 
+@app.route('/updateprofile', methods = ['GET','POST'])
+def updateprofile():
+    if 'email' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        user = User.query.filter_by(email = session['email']).first()
+        if user.is_admin is True:
+            password = request.form['password']
+            name = request.form['name']
+            user.password = password
+            user.name = name
+            db.session.commit()
+            return render_template('admin/profile.html', user = user)
+
+        password = request.form['password']
+        phone =  request.form['phone']
+        name = request.form['name']
+        address = request.form['address']
+        pincode = request.form['pincode']
+
+        user.password = password
+        user.phone = phone
+        user.name = name
+        user.address = address
+        user.pincode = pincode
+
+        db.session.commit()
+        return render_template('profile', user = user)
+
+    
 
 
 

@@ -4,8 +4,10 @@
         <title>Dashboard</title>
     </head>
     <body>
-        <h2>Welcome, {{ user.email }}!</h2>
+        <h2>Welcome, {{ user.name or user.email }}!</h2>
         Here is your Dashboard. <br>
+
+        <a href="{{ url_for('profile')}}"> <button> Your Profile </button> </a>
 
         <p>
             <h3>
