@@ -1,21 +1,39 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 
-<html>
-    <head>
-        <title>Login Page</title>
-    </head>
-    <body>
-            <form id = "auth_form" action = "{{url_for('login')}}" method = "POST">
-            <input type = "email" id = "email" name = "email" placeholder = "Registered Email Id" required> <br>
-            <input type = "password" id = "password" name = "password" placeholder = "Password" required> <br>
-            <input type = "submit" value = "Login">
+{% block title %} Login {% endblock %}
 
-            </form>
+{% block content %}
+<nav class="navbar navbar-expand-lg p-2 sticky-top justify-content-center" style="background-color: blueviolet;" data-bs-theme="dark">
+  <a class =" link-underline link-underline-opacity-0" href = "{{ url_for('routes_bp.home')}}"><div class="navbar-brand p-0 fw-bold" style="font-size: 1cm;">Canopy</div></a>
+</nav>
 
-            Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
-            
-            {% if error %}
-                <div style="color: red;">{{ error }}</div>
-            {% endif %}
-    </body>
-</html>
+<section class="d-flex align-items-center justify-content-center" style="height: 90vh;">
+  <div class="container">
+    <div class="row d-flex justify-content-center align-items-center">
+      <div class="col-md-9 col-lg-6 col-xl-5 mb-4">
+        <img class="rounded-5 border border-dark img-fluid" src="{{ url_for('static', filename='images/loginphoto.jpg') }}" alt="Sample image">
+      </div>
+      <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+        <form action="{{ url_for('routes_bp.login') }}" method="POST">
+          <div class="form-outline mb-4">
+            <input required type="email" id="email" name="email" class="form-control form-control-lg border border-dark"
+              placeholder="Email Address" />
+          </div>
+          <div class="form-outline mb-3">
+            <input required type="password" id="password" name="password" class="form-control form-control-lg border border-dark"
+              placeholder="Password">
+          </div>
+
+          <div class="text-center text-lg-start mt-4 pt-2">
+            <button type="submit" class="btn btn-primary btn-lg px-5">Login</button>
+            <p class="small fw-bold mt-2 pt-1 mb-0">
+              Don't have an account? <a href="{{ url_for('routes_bp.register') }}" class="link-danger">Register</a><br>
+              {% if error %}<div style="color: red;">{{ error }}</div>{% endif %}
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

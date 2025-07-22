@@ -1,29 +1,69 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title></title>
-    </head>
-    <body>
-        <h1>Book a Spot!</h1>
-        <form action="{{url_for('bookspot')}}" method="POST">
+{% extends "base.html" %}
 
-            <input type="hidden" name="spot_id" value="{{ spot.id }}">
+{% block title %} Book a Spot {% endblock %}
 
-            <label for="lot_prime_location">Lot Prime Location:</label><br>
-            <input type="text" id="lot_location" name="lot_prime_location" value="{{spot.lot.prime_location_name}}" readonly><br><br>
+{% block content %} 
 
-            <label for="lot_address">Lot Address:</label><br>
-            <input type="text" id="lot_address" name="lot_address" value="{{spot.lot.address}}" readonly><br><br>
+<div class="vh-100">
+    <nav class="navbar navbar-expand-lg p-2 sticky-top mb-4" style="background-color: blueviolet;" data-bs-theme="dark">
+      <div class="container-fluid">
+        <div class="navbar-brand p-0 fw-bold" style="font-size: 1cm;">Canopy</div>
+        <div class="collapse navbar-collapse fs-5" id="navbarText">
+          <ul class="navbar-nav me-auto mx-auto mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{url_for('routes_bp.dashboard')}}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Summary</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('routes_bp.profile') }}">Edit Profile</a>
+            </li>
+            <li>
+                <a class="nav-link" href="{{ url_for('routes_bp.logout') }}">Logout</a>
+            </li>
+          </ul>
+          <span style="color: white;">
+            Welcome, {{ user.name or user.email }}!
+          </span>
+        </div>
+      </div>
+    </nav>
+    
+    <div class="container-fluid d-flex justify-content-center align-items-center" style="height: 84vh;">
+      <div class="px-5 py-3 bg-white rounded-5 shadow border" style="min-width: 320px; max-width: 500px; width: 100%;">
+        <form method="POST" action="{{url_for('routes_bp.bookspot')}}">
+          <h4 class="text-center mb-4">Book a Spot!</h4>
+          
+          <input type="hidden" name="spot_id" value="{{ spot.id }}">
 
-            <label for="pincode">Pincode:</label><br>
-            <input type="text" id="pincode" name="pincode" value="{{spot.lot.pincode}}" readonly><br><br>
+          <div class="mb-2">
+            <label for="lot_prime_location" class="form-label">Lot Prime Location:</label>
+            <input type="text" class="form-control border border-secondary" id="lot_location" name="lot_prime_location" value="{{spot.lot.prime_location_name}}" readonly>
+          </div>
 
-            <label for="vehicle_number">Vehicle Number:</label><br>
-            <input type="text" id="vehicle_number" name="vehicle_number" required><br><br>
+          <div class="mb-2">
+            <label for="lot_address" class="form-label">Lot Address:</label>
+            <input type="text" class="form-control border border-secondary" id="lot_address" name="lot_address" value="{{spot.lot.address}}" readonly>
+          </div>
 
-            <button type="submit">Submit</button>
+          <div class="mb-2">
+            <label for="pincode" class="form-label">Pincode:</label>
+            <input type="text" class="form-control border border-secondary" id="pincode" name="pincode" value="{{spot.lot.pincode}}" readonly>
+          </div>
+
+          <div class="mb-3">
+            <label for="vehicle_number" class="form-label">Vehicle Number:</label>
+            <input type="text" class="form-control border border-secondary" id="vehicle_number" name="vehicle_number" required>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
         </form>
-        <p>Click <a href="{{url_for('dashboard')}}">here</a> to view all bookings.</p>
+        <p class="text-center mt-3">Click <a href="{{url_for('routes_bp.dashboard')}}">here</a> to view all bookings.</p>
+      </div>
+    </div>
+</div>
 
-    </body>
-</html>
+{% endblock %}

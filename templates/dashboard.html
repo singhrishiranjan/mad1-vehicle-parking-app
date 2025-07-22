@@ -1,65 +1,139 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Dashboard</title>
-    </head>
-    <body>
-        <h2>Welcome, {{ user.name or user.email }}!</h2>
-        Here is your Dashboard. <br>
+{% extends "base.html" %}
 
-        <a href="{{ url_for('profile')}}"> <button> Your Profile </button> </a>
+{%block title %} Dashboard {% endblock %}
 
-        <p>
-            <h3>
-                Your Current Parkings
-            </h3>
+{% block content %} 
+<div>
+<nav class="navbar navbar-expand-lg p-2 sticky-top mb-4" style = "background-color: blueviolet;" data-bs-theme="dark">
+  <div class="container-fluid">
+    <div class="navbar-brand p-0 fw-bold" style = "font-size: 1cm;">Canopy</div>
+    <div class="collapse navbar-collapse fs-5" id="navbarText">
+      <ul class="navbar-nav me-auto mx-auto mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{{url_for('routes_bp.dashboard')}}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('routes_bp.summary')}}">Summary</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('routes_bp.profile') }}">Edit Profile</a>
+        </li>
+        <li>
+            <a class = "nav-link" href = "{{ url_for('routes_bp.logout') }}">Logout</a>
+        </li>
+      </ul>
+      <span style="color: white;">
+        Welcome, {{ user.name or user.email }}!
+      </span>
+    </div>
+  </div>
+</nav>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Vehicle No.</th>
-                        <th>Lot Location</th>
-                        <th>Spot No.</th>
-                        <th>Address</th>
-                        <th>Pincode</th>
-                        <th>Parking Timestamp</th>
-                        <th>Cost per Hour</th>
-                        <th>Contact</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if cur_reservations %}
-                    {%for item in cur_reservations%}
-                    <tr>
-                        <td>{{ item.vehicle_number }}</td>
-                        <td>{{ item.spot.lot.prime_location_name }}</td>
-                        <td>{{ item.spot.id.split('_')[1][1:] }}</td>
-                        <td>{{ item.spot.lot.address }}</td>
-                        <td>{{ item.spot.lot.pincode }}</td>
-                        <td>{{ item.parking_timestamp.strftime('%d/%m/%Y %I:%M %p') }}</td>
-                        <td>{{ item.spot.lot.price_per_hour}}</td>
-                        <td>{{ item.spot.lot.contact_number }}</td>
-                        <td>
-                            <form method = "POST" action = "{{ url_for('release') }}">
-                                <input type = 'hidden' name = 'reservation_id' value = "{{ item.id }}">
-                                <button type = 'submit'> Release </button>
-                            </form>
-                        </td>
-                    </tr>
 
-                    {% endfor %}
-                    {% endif %}
-                </tbody>
-            </table>
-        </p>
-        <p>
+<div class="card m-5 border border-success" style="background-color: #f9fff9;">
+  <div class="card-body">
+    <h4 class="card-title text-center mb-4 text-success">Search Parking Spots</h4>
 
-            <h3>
-                Your Past Parkings
-            </h3>
+    <form id="spot_search" action="{{ url_for('routes_bp.search') }}" method="GET" class="mb-4 d-flex flex-column flex-md-row gap-2">
+      <input type="text" id="search" class="form-control border border-secondary" placeholder="Location/Pincode/Area" name="query" required>
+      <button type="submit" class="btn btn-outline-success border-3">Search</button>
+    </form>
 
-            <table>
-                <thead>
+    {% if results is defined %}
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle text-center" style="border-color: green;">
+        <thead class="table table-success">
+          <tr>
+            <th>Prime Location</th>
+            <th>Address</th>
+            <th>Pincode</th>
+            <th>Cost per Hour</th>
+            <th>Contact</th>
+            <th>Book</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if results %}
+            {% for result in results %}
+            <tr>
+              <td>{{ result.prime_location_name }}</td>
+              <td>{{ result.address }}</td>
+              <td>{{ result.pincode }}</td>
+              <td>{{ result.price_per_hour }}</td>
+              <td>{{ result.contact_number }}</td>
+              <td>
+                <form method="POST" action="{{ url_for('routes_bp.booking_confirmation') }}">
+                  <input type="hidden" name="lot_id" value="{{ result.id }}">
+                  <button type="submit" class="btn btn-success btn-sm">Book</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="6">No results found</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+
+<div class="card m-5">
+    <div class="card-body">
+        <h4 class="card-title text-center">Your Current Parkings</h4>
+        {% if cur_reservations %}
+        <table class="table table-bordered align-middle text-center mt-4" style = "border-color: blueviolet;">
+                    <thead class ="table-secondary" style ="color: white;">
+                        <tr>
+                            <th>Vehicle No.</th>
+                            <th>Lot Location</th>
+                            <th>Spot No.</th>
+                            <th>Address</th>
+                            <th>Pincode</th>
+                            <th>Parking Timestamp</th>
+                            <th>Cost per Hour</th>
+                            <th>Contact</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for item in cur_reservations%}
+                        <tr>
+                            <td>{{ item.vehicle_number }}</td>
+                            <td>{{ item.spot.lot.prime_location_name }}</td>
+                            <td>{{ item.spot.id.split('_')[1][1:] }}</td>
+                            <td>{{ item.spot.lot.address }}</td>
+                            <td>{{ item.spot.lot.pincode }}</td>
+                            <td>{{ item.parking_timestamp.strftime('%d/%m/%Y %I:%M %p') }}</td>
+                            <td>{{ item.spot.lot.price_per_hour}}</td>
+                            <td>{{ item.spot.lot.contact_number }}</td>
+                            <td>
+                                <form method = "POST" action = "{{ url_for('routes_bp.releasing_confirmation') }}">
+                                    <input type = 'hidden' name = 'reservation_id' value = "{{ item.id }}">
+                                    <button type = 'submit' class ="btn btn-danger"> Release </button>
+                                </form>
+                            </td>
+                        </tr>
+    
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-center fs-1 my-0">-</p>
+                {% endif %}
+
+    </div>
+</div>
+<div class="card m-5">
+    <div class="card-body">
+        <h4 class="card-title text-center">Your Past Parkings</h4>
+         {% if past_reservations %}
+        <table class="table table-bordered align-middle text-center mt-4" style = "border-color: blueviolet;">
+                <thead  class = "table-secondary">
                     <tr>
                         <th>Vehicle Number</th>
                         <th>Prime Location</th>
@@ -71,7 +145,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% if past_reservations %}
                     {%for item in past_reservations%}
                     <tr>
                         <td>{{ item.vehicle_number }}</td>
@@ -80,59 +153,16 @@
                         <td>{{ item.pincode }}</td>
                         <td>{{ item.parking_timestamp.strftime('%d/%m/%Y %I:%M %p') }}</td>
                         <td>{{ item.leaving_timestamp.strftime('%d/%m/%Y %I:%M %p') }}</td>
-                        <td>{{ item.total_cost | round | int}}</td>
+                        <td>{{ item.total_cost | round(2) }}</td>
                     </tr>
 
                     {% endfor %}
-                    {% endif %}
                 </tbody>
             </table>
-        </p>
-
-        <p>
-            <h4>Reserve a spot for Parking</h4>
-            <form id="spot_search" action = "{{url_for('search')}}" method="GET">
-                <input type = "text" id = "search" placeholder="Location/Pincode/Area" name = "query" required> 
-                <input type = "submit" value = "Search">
-            </form>
-        </p>
-
-        <p>
-            {% if results is defined %}
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Prime Location</th>
-                            <th>Address</th>
-                            <th>Pincode</th>
-                            <th>Cost per hour</th>
-                            <th>Contact</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if results %}
-                            {% for result in results %}
-                            <tr>
-                                <td>{{ result.prime_location_name }}</td>
-                                <td>{{ result.address }}</td>
-                                <td>{{ result.pincode }}</td>
-                                <td>{{ result.price_per_hour }}</td>
-                                <td>{{ result.contact_number }}</td>
-                                <td>
-                                    <form method="POST" action="{{ url_for('booking_confirmation') }}">
-                                        <input type="hidden" name="lot_id" value="{{ result.id }}">
-                                        <button type="submit">Book</button>
-                                    </form></td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <tr><td colspan="6">No results found</td></tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+            {% else %}
+            <p class="text-center fs-1 my-0">-</p>
             {% endif %}
-        </p>
-        
-        <a href="{{ url_for('logout') }}">Logout</a>
-    </body>
-</html>
+    </div>
+</div>
+</div>
+{% endblock %}

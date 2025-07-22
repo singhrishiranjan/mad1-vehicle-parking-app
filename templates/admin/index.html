@@ -2,12 +2,12 @@
 
 {% block access_control %}
 <div class="navbar-text btn-group pull-right">
-    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-danger">
+    <a href="{{ url_for('routes_bp.logout') }}" class="btn btn-sm btn-danger">
         <i class="glyphicon glyphicon-log-out"></i> Logout
     </a>
 </div>
 <div>
-    <a href ="{{ url_for('profile')}}">
+    <a href ="{{ url_for('routes_bp.profile')}}">
         Your Profile
     </a>
 </div>

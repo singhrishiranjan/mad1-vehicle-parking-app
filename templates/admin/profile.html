@@ -4,7 +4,7 @@
         <title></title>
     </head>
     <body>
-        <form method = "POST" action="{{url_for('updateprofile')}}">
+        <form method = "POST" action="{{url_for('routes_bp.updateprofile')}}">
 
             <label for = "email">Email</label><br>
             <input type = "email" name = "email" value = "{{ user.email }}" readonly> <br><br>

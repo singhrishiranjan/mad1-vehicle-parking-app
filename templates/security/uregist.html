@@ -1,25 +1,66 @@
-<!DOCTYPE html>
+{%extends "base.html" %}
 
-<html>
-    <head>
-        <title>Registration Page</title>
-    </head>
-    <body>
-            <form action = "{{url_for('register')}}" method = "POST">
-            <input type = "email" name = "email" placeholder = "Email Id" required> <br>
-            <input type = "password" name = "password" placeholder = "Password" required> <br>
-            <input type = "text" name = "phone" placeholder = "Phone no."> <br>
-            <input type = "text" name = "name" placeholder = "Full name"> <br>
-            <input type = "text" name = "address" placeholder = "Address"> <br>
-            <input type = "text" name = "pincode" placeholder = "Pincode"> <br>
-            <input type = "submit" value = "Register">
+{% block title %} Register Yourself {% endblock %}
 
-            </form>
+{% block content %}
 
-            Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+<nav class="navbar navbar-expand-lg p-2 sticky-top justify-content-center" style="background-color: blueviolet;" data-bs-theme="dark">
+  <a class =" link-underline link-underline-opacity-0" href = "{{ url_for('routes_bp.home')}}"><div class="navbar-brand p-0 fw-bold" style="font-size: 1cm;">Canopy</div></a>
+</nav>
+
+<section class="d-flex justify-content-center align-items-center", style="height: 90vh;">
+  <div class="container">
+    <div class="row d-flex justify-content-center align-items-center">
+      <div class="col-md-9 col-lg-6 col-xl-5 mb-4">
+        <img src="{{ url_for('static' , filename ='images/registerphoto.jpg')}}"
+          class="rounded-5 border border-dark img-fluid">
+      </div>
+      <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+        <form action = "{{url_for('routes_bp.register')}}" method = "POST">
+         
+          <div data-mdb-input-init class="form-outline mb-4">
+            <input required type="email" id="email" name = "email" class="form-control form-control-lg border border-dark"
+              placeholder="Email Address" />
             
-            {% if error %}
-            <div style="color: red;">{{ error }}</div>
-            {% endif %}
-    </body>
-</html>
+          </div>
+
+
+          <div data-mdb-input-init class="form-outline mb-3">
+            <input required type="password" id="password" name = "password" class="form-control form-control-lg border border-dark"
+              placeholder="Password">
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-3">
+            <input type = "text" name = "name" placeholder = "Full name" class="form-control form-control-lg border border-dark">
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-3">
+            <input type = "tel" name = "phone" pattern = "[6-9][0-9]{9}" placeholder = "Phone Number" maxlength= "10" class="form-control form-control-lg border border-dark">
+          </div>
+            
+          <div data-mdb-input-init class="form-outline mb-3">
+            <input type = "text" name = "address" placeholder = "Address" class="form-control form-control-lg border border-dark">
+          </div>
+            
+          <div data-mdb-input-init class="form-outline mb-3">
+            <input type = "text" name = "pincode" placeholder = "Pincode" class="form-control form-control-lg border border-dark">
+          </div>
+            
+
+
+           
+          <div class="text-center text-lg-start mt-4 pt-2">
+            <button  type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
+              style="padding-left: 2.5rem; padding-right: 2.5rem;">Register</button>
+            <p class="small fw-bold mt-2 pt-1 mb-0">Already have an account? <a href="{{ url_for('routes_bp.login') }}"
+                class="link-danger">Login here</a><br>
+            {% if error %}<div style="color: red;">{{ error }}</div>{% endif %}</p>
+            
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

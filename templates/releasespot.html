@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %} Release the Spot {% endblock %}
+
+{% block content %}
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg p-2 sticky-top" style="background-color: blueviolet;" data-bs-theme="dark">
+  <div class="container-fluid">
+    <div class="navbar-brand p-0 fw-bold" style="font-size: 1cm;">Canopy</div>
+    <div class="collapse navbar-collapse fs-5" id="navbarText">
+      <ul class="navbar-nav me-auto mx-auto mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" href="{{url_for('routes_bp.dashboard')}}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Summary</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('routes_bp.profile') }}">Edit Profile</a>
+        </li>
+        <li>
+          <a class="nav-link" href="{{ url_for('routes_bp.logout') }}">Logout</a>
+        </li>
+      </ul>
+      <span style="color: white;">
+        Welcome, {{ user.name or user.email }}!
+      </span>
+    </div>
+  </div>
+</nav>
+
+<!-- Centered Card Below Navbar Without Scroll -->
+<div class="d-flex align-items-center justify-content-center small" style="height: 90vh;">
+  <div class="px-5 py-3 bg-white rounded-5 shadow border" style="min-width: 320px; max-width: 500px; width: 100%;">
+    <form method="POST" action="{{url_for('routes_bp.releasespot')}}">
+      <h4 class="text-center mb-4">Release the Spot!</h4>
+      
+      <input type="hidden" name="reservation_id" value="{{ res.id }}">
+
+      <div class="mb-2">
+        <label for="lot_prime_location" class="form-label">Lot Prime Location:</label>
+        <input type="text" class="form-control border border-secondary" id="lot_location" name="lot_prime_location" value="{{ res.spot.lot.prime_location_name}}" readonly>
+      </div>
+
+      <div class="mb-2">
+        <label for="spot_no" class="form-label">Spot No.</label>
+        <input type="text" class="form-control border border-secondary" id="spot_no" name="spot_no" value="{{ res.spot.id.split('_')[1][1:]}}" readonly>
+      </div>
+
+      <div class="mb-2">
+        <label for="vehicle_number" class="form-label">Vehicle Number:</label>
+        <input type="text" class="form-control border border-secondary" id="vehicle_number" name="vehicle_number" value="{{res.vehicle_number}}" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label for="parking_timestamp" class="form-label">Parking Time:</label>
+        <input type="text" class="form-control border border-secondary" id="parking_timestamp" name="parking_timestamp" value="{{res.parking_timestamp.strftime('%d/%m/%Y %I:%M %p')}}" readonly>
+      </div>
+
+      <div class="mb-3">
+        <label for="leaving_timestamp" class="form-label">Release Time:</label>
+        <input type="text" class="form-control border border-secondary" id="leaving_timestamp" name="leaving_timestamp" value="{{cur_time.strftime('%d/%m/%Y %I:%M %p')}}" readonly>
+      </div>
+
+      <div class="mb-2">
+        <label for="es_cost" class="form-label">Estimated Cost:</label>
+        <input type="text" class="form-control border border-secondary" id="es_cost" name="es_cost" value="{{ es_cost | round(2) }}" readonly>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-danger">Release</button>
+      </div>
+    </form>
+    <p class="text-center mt-3">Click <a href="{{url_for('routes_bp.dashboard')}}">here</a> to view all bookings.</p>
+  </div>
+</div>
+
+{% endblock %}

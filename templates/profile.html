@@ -1,31 +1,72 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title></title>
-    </head>
-    <body>
-        <form method = "POST" action="{{url_for('updateprofile')}}">
+{% extends "base.html" %}
 
-            <label for = "email">Email</label><br>
-            <input type = "email" name = "email" value = "{{ user.email }}" readonly> <br><br>
-            
-            <label for = "password">Password</label><br>
-            <input type = "password" name = "password" value = "{{ user.password }}" required> <br><br>
+{%block title %} Update Profile {% endblock %}
 
-            <label for = "phone">Phone No.</label><br>
-            <input type = "text" name = "phone" value = "{{ user.phone }}"> <br><br>
+{% block content %} 
 
-            <label for = "name">Full Name</label><br>
-            <input type = "text" name = "name" value = "{{ user.name }}"> <br><br>
-
-            <label for = "address">Address</label><br>
-            <input type = "text" name = "address" value = "{{ user.address }}"> <br><br>
-
-            <label for = "pincode">Pincode</label><br>
-            <input type = "text" name = "pincode" value = "{{ user.pincode }}"> <br><br>
-
+<div class="vh-100">
+    <nav class="navbar navbar-expand-lg p-2 sticky-top" style = "background-color: blueviolet;" data-bs-theme="dark">
+      <div class="container-fluid">
+        <div class="navbar-brand p-0 fw-bold" style = "font-size: 1cm;">Canopy</div>
+        <div class="collapse navbar-collapse fs-5" id="navbarText">
+          <ul class="navbar-nav me-auto mx-auto mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="{{url_for('routes_bp.dashboard')}}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('routes_bp.summary') }}">Summary</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="{{ url_for('routes_bp.profile') }}">Edit Profile</a>
+            </li>
+            <li>
+                <a class = "nav-link" href = "{{ url_for('routes_bp.logout') }}">Logout</a>
+            </li>
+          </ul>
+          <span style="color: white;">
+            Welcome, {{ user.name or user.email }}!
+          </span>
+        </div>
+      </div>
+    </nav>
     
-            <input type = "submit" value = "Update">
+    <div class="container-fluid d-flex justify-content-center align-items-center my-5">
+      <div class="px-5 py-4 bg-white rounded-5 shadow border" style="min-width: 320px; max-width: 500px; width: 100%;">
+        <form method="POST" action="{{ url_for('routes_bp.updateprofile') }}">
+          <h4 class="text-center mb-4">Update Profile</h4>
+    
+          <div class="mb-2">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" class="form-control border border-secondary" value="{{ user.email }}" readonly>
+          </div>
+    
+          <div class="mb-2">
+            <label for="phone" class="form-label">Phone No.</label>
+            <input type="text" name="phone" class="form-control border border-secondary" value="{{ user.phone }}">
+          </div>
+    
+          <div class="mb-2">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" name="name" class="form-control border border-secondary" value="{{ user.name }}">
+          </div>
+    
+          <div class="mb-2">
+            <label for="address" class="form-label">Address</label>
+            <input type="text" name="address" class="form-control border border-secondary" value="{{ user.address }}">
+          </div>
+    
+          <div class="mb-3">
+            <label for="pincode" class="form-label">Pincode</label>
+            <input type="text" name="pincode" class="form-control border border-secondary" value="{{ user.pincode }}">
+          </div>
+    
+          <div class="d-grid">
+            <input type="submit" value="Update" class="btn btn-primary">
+          </div>
         </form>
-    </body>
-</html>
+      </div>
+    </div>
+</div>
+
+
+{% endblock %}

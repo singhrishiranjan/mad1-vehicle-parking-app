@@ -1,14 +1,31 @@
-<!DOCTYPE html>
-<head>
-    <title>Welcome</title>
-</head>
-<body>
-    <h1>Welcome to the Site!</h1>
-    <a href="{{ url_for('register') }}">
-        <button>Register</button>
-    </a>
-    <a href="{{ url_for('login') }}">
-        <button>Login</button>
-    </a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %} Home {% endblock %}
+
+
+
+{% block content %}
+
+  <div class="container">
+    <div class="row flex-lg-row-reverse align-items-center align-items-center vh-100">
+      <div class="col-10 col-sm-8 col-lg-6">
+        <img class = "rounded-5" src="{{ url_for('static', filename = 'images/homephoto.jpg') }}" class="d-block mx-lg-auto img-fluid" width="700" height="500" loading="lazy">
+      </div>
+      <div class="col-lg-6">
+        <h1 class="display-1 fw-bold lh-1 mb-3">Canopy</h1>
+        <p class="lead" style="font-size: large;">Covering your Parking needs! <br> Whether you're a daily commuter or a visitor, Canopy helps you search, view, and book parking spaces at your convenience. Join us in making city travel smoother, more organized, and just a little more peaceful.
+        </p>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <a href="{{ url_for('routes_bp.login') }}">
+                <button type="button" class="btn btn-primary btn-me px-4 me-md-2">Login</button>
+            </a>
+            <a href="{{ url_for('routes_bp.register') }}">
+                    <button type="button" class="btn btn-outline-secondary btn-me px-4">Register</button>
+            </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+{% endblock %}
