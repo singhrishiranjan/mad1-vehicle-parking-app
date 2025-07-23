@@ -38,9 +38,6 @@ def create_admin_user():
 
 
 
-    
-
-
 app = create_app()
 
 

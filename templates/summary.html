@@ -26,10 +26,16 @@
     </div>
   </div>
 </nav>
-<div class="card mt-4 mx-auto" style="max-width: 800px;">
+<div class="card mt-4 mb-2 mx-auto" style="max-width: 800px;">
     <div class="card-body">
         <h5 class="card-title">Reservations in past 7 days</h5>
-        <canvas id="chart" height="100"></canvas>
+        <canvas id="res_chart" height="100"></canvas>
+    </div>
+</div>
+<div class="card mb-4 mx-auto" style="max-width: 800px;">
+    <div class="card-body">
+        <h5 class="card-title">Total Cost in past 7 days</h5>
+        <canvas id="cost_chart" height="100"></canvas>
     </div>
 </div>
 {% endblock %}
@@ -37,30 +43,58 @@
 {% block script %}
 
 <script>
+    // Data from Flask passed via Jinja
     const labels = {{ labels|tojson }};
-    const values = {{ values|tojson }};
+    const res_values = {{ res_values|tojson }};
+    const cost_values = {{ cost_values|tojson }};
 
-    const ctx = document.getElementById('chart').getContext('2d');
-    new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: labels,
-        datasets: [{
-        label: 'Data',
-        data: values,
-        backgroundColor: 'rgba(0, 123, 255, 0.5)',  // basic color
-        borderColor: 'rgba(0, 123, 255, 1)',
-        borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        scales: {
-        y: {
-            beginAtZero: true
+    // First Chart - Reservation Data
+    const ctx1 = document.getElementById('res_chart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Reservations',
+                data: res_values,
+                backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                borderColor: 'rgba(0, 123, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
         }
+    });
+
+    // Second Chart - Cost Data
+    const ctx2 = document.getElementById('cost_chart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Costs',
+                data: cost_values,
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
         }
-    }
     });
 </script>
+
 {% endblock %}

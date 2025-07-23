@@ -214,6 +214,8 @@ def releasespot():
 @routes_bp.route('/summary', methods = ['GET'])
 def summary():
     user  =  User.query.filter_by(email = session['email']).first()
+   
+
     end_date = datetime.now()
     start_date = end_date - timedelta(days = 6)
     dates = [start_date + timedelta(days = x) for x in range(7)]
@@ -224,13 +226,33 @@ def summary():
         PastReservations.parking_timestamp.between(start_date, end_date + timedelta(days=1))
     ).all()
 
-    date_counts = {date.strftime('%d-%m-%Y'): 0 for date in dates}
+    results = PastReservations.query.filter(
+        PastReservations.user_email == user.email,
+        PastReservations.leaving_timestamp.between(start_date, end_date + timedelta(days = 1))
+    ).all()
+
+    res_counts = {date.strftime('%d-%m-%Y'): 0 for date in dates}
     for record in records:
-        date_counts[record.parking_timestamp.strftime('%d-%m-%Y')] += 1
-    date_counts_sorted = dict(sorted(date_counts.items()))
+        res_counts[record.parking_timestamp.strftime('%d-%m-%Y')] += 1
+    res_counts_sorted = dict(sorted(res_counts.items()))
 
-    labels =[date for date in date_counts_sorted.keys()]
-    values = [count for count in date_counts_sorted.values()]
+    cost_counts = {date.strftime('%d-%m-%Y') : 0 for date in dates}
+    for result in results:
+        cost_counts[result.leaving_timestamp.strftime('%d-%m-%Y')] += result.total_cost
+    cost_counts_sorted = dict(sorted(cost_counts.items()))
+
+    labels =[date for date in res_counts_sorted.keys()]
+    res_values = [count for count in res_counts_sorted.values()]
+    cost_values = [cost for cost in cost_counts_sorted.values()]
 
 
-    return render_template('summary.html', user = user, labels = labels, values = values)
+    return render_template('summary.html', user = user, labels = labels, res_values = res_values, cost_values = cost_values)
+
+@routes_bp.route('/admin/summary', methods = ['GET', 'POST'])
+def admin_summary():
+    user  =  User.query.filter_by(email = session['email']).first()
+    if user.is_admin == True:
+        total_spots = ParkingSpot.query.count()
+        reserved_spots = ParkingSpot.query.filter(ParkingSpot.is_reserved == True).count()
+        unreserved_spots = total_spots - reserved_spots
+        return render_template('admin/summary.html', reserved_spots = reserved_spots, unreserved_spots = unreserved_spots)

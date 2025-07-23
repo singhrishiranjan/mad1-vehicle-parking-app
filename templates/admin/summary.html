@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Spot Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Parking Spot Availability</h1>
+    <div style="width: 400px; height: 400px;">
+        <canvas id="parkingChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('parkingChart').getContext('2d');
+        const parkingChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Reserved Spots', 'Available Spots'],
+                datasets: [{
+                    data: [{{ reserved_spots }}, {{ unreserved_spots }}],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Parking Spot Distribution'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

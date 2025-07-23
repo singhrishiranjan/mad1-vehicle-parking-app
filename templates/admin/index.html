@@ -1,14 +1,36 @@
 {% extends 'admin/master.html' %}
 
-{% block access_control %}
-<div class="navbar-text btn-group pull-right">
-    <a href="{{ url_for('routes_bp.logout') }}" class="btn btn-sm btn-danger">
-        <i class="glyphicon glyphicon-log-out"></i> Logout
-    </a>
-</div>
-<div>
-    <a href ="{{ url_for('routes_bp.profile')}}">
-        Your Profile
-    </a>
-</div>
+{% block head %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 {% endblock %}
+
+{% block brand %}
+<a class="navbar-brand" style = "font-size: xx-large; font-weight: bold; " ="/admin">Canopy Admin</a>
+{% endblock %}
+
+{% block main_menu %}
+    {{ super() }}
+    <ul class = "nav navbar-nav">
+    <li class = "active">
+        <a href="{{ url_for('routes_bp.profile') }}">
+            Profile
+        </a>
+    </li>
+    <li class = "active">
+        <a href="{{ url_for('routes_bp.admin_summary') }}">
+            Summary
+        </a>
+    </li>
+    </ul>
+{% endblock %}
+
+{% block access_control %}
+
+<div class = "navbar-text pull-right">
+    <a href = "{{ url_for('routes_bp.logout')}}"> <button class="btn-danger py-0">Logout</button></a>
+</div>
+
+{% endblock %}
+
