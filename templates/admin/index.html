@@ -13,12 +13,12 @@
 {% block main_menu %}
     {{ super() }}
     <ul class = "nav navbar-nav">
-    <li class = "active">
+    <li>
         <a href="{{ url_for('routes_bp.profile') }}">
             Profile
         </a>
     </li>
-    <li class = "active">
+    <li>
         <a href="{{ url_for('routes_bp.admin_summary') }}">
             Summary
         </a>

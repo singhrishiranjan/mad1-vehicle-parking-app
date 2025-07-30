@@ -255,4 +255,22 @@ def admin_summary():
         total_spots = ParkingSpot.query.count()
         reserved_spots = ParkingSpot.query.filter(ParkingSpot.is_reserved == True).count()
         unreserved_spots = total_spots - reserved_spots
-        return render_template('admin/summary.html', reserved_spots = reserved_spots, unreserved_spots = unreserved_spots)
+
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days = 6)
+    dates = [start_date + timedelta(days = x) for x in range(7)]
+
+    records = PastReservations.query.filter(
+        PastReservations.leaving_timestamp.between(start_date, end_date + timedelta(days=1))
+    ).all()
+
+    rev_counts = {date.strftime('%d-%m-%Y') : 0 for date in dates}
+    for record in records:
+        rev_counts[record.leaving_timestamp.strftime('%d-%m-%Y')] += record.total_cost
+
+    rev_counts_sorted = dict(sorted(rev_counts.items()))
+    labels =[date for date in rev_counts_sorted.keys()]
+    rev_values = [rev for rev in rev_counts_sorted.values()]
+    print(rev_counts_sorted)
+
+    return render_template('admin/summary.html', reserved_spots = reserved_spots, unreserved_spots = unreserved_spots, labels = labels, rev_values = rev_values)

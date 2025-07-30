@@ -24,9 +24,9 @@ class SecureModelView(ModelView):
 
 class UserAdmin(SecureModelView):
     column_list  =  ['id', 'email', 'name', 'is_admin']
-    form_columns  =  ['email', 'password', 'name', 'phone', 'address', 'pincode', 'is_admin']
-    can_create  =  True
-    can_edit  =  False
+    form_columns  =  ['email', 'name', 'phone', 'address', 'pincode', 'is_admin']
+    can_create  =  False
+    can_edit  =  True
     can_delete  =  True
     column_sortable_list  =  ['id', 'name', 'is_admin']
     column_searchable_list  =  ['id', 'email', 'name', 'phone', 'address', 'pincode']
@@ -63,6 +63,15 @@ class ParkingLotAdmin(SecureModelView):
                     for i in range(1, model.max_spots + 1):
                         new_spot = ParkingSpot(id = f"L{model.id}_S{i}", lot_id = model.id)
                         db.session.add(new_spot)
+            if model.is_active == False:
+                old_spots = ParkingSpot.query.filter_by(lot_id = model.id).all()
+                for spot in old_spots:
+                    if spot.is_reserved:
+                        all_unreserved = False
+                        break
+                if not all_unreserved:
+                    raise ValueError("Cannot change status: some spots are currently reserved.")
+
 
 
 
@@ -70,23 +79,14 @@ class ParkingLotAdmin(SecureModelView):
 
 class ParkingSpotAdmin(SecureModelView):
     column_list  =  ['id', 'lot', 'is_reserved']
-    form_columns  =  ['lot']
     column_sortable_list = ['id', 'is_reserved']
     column_searchable_list = ['lot.prime_location_name', 'id']
     can_edit = False
     can_create = False
     can_delete = False
-    def on_model_change(self,  model, is_created):
-        db.session.flush()
 
-        if is_created:
-            lot = ParkingLot.query.filter_by(id = model.lot_id).first()
-            lot.max_spots += 1
-            db.session.commit()
         
-    
 
-    # Use form_ajax_refs for the relationship field
     form_ajax_refs  =  {
         'lot': {
             'fields': ['prime_location_name', 'address', 'pincode', 'id'],
@@ -101,16 +101,17 @@ class ReservationAdmin(SecureModelView):
     can_create  =  False
     can_edit  =  False
     can_delete  =  True
-    # form_ajax_refs  =  {
-    #     'spot': {
-    #         'fields': ['spot_number', 'lot_id'],
-    #         'page_size': 10
-    #     },
-    #     'user': {
-    #         'fields': ['email', 'name'],
-    #         'page_size': 10
-    #     }
-    # }
+    column_searchable_list = ['spot.lot.prime_location_name', 'id', 'user.name', 'user.email']
+    form_ajax_refs  =  {
+        'spot': {
+            'fields': ['lot_id'],
+            'page_size': 10
+        },
+        'user': {
+            'fields': ['email', 'name'],
+            'page_size': 10
+        }
+    }
 class PastReservationsAdmin(SecureModelView):
     column_list = ['id', 'user_email', 'lot_prime_location', 'address', 'pincode', 'parking_timestamp', 'leaving_timestamp', 'vehicle_number']
     column_sortable_list = ['id', 'user_email', 'lot_prime_location', 'address', 'parking_timestamp', 'leaving_timestamp', 'total_cost']

@@ -56,11 +56,11 @@ class ParkingSpot(db.Model):
     
 class Reservation(db.Model):
     id  =  db.Column(db.Integer, primary_key = True, autoincrement  =  True)
-    spot_id  =  db.Column(db.String(10), db.ForeignKey('parking_spot.id'), nullable = False)
+    spot_id  =  db.Column(db.String(10), db.ForeignKey('parking_spot.id'), nullable = False, unique = True)
     user_id  =  db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
     parking_timestamp  =  db.Column(db.DateTime, nullable = False)
     vehicle_number  =  db.Column(db.String(20))
-    spot  =  db.relationship('ParkingSpot', back_populates  =  'reservations')
+    spot  =  db.relationship('ParkingSpot', back_populates  =  'reservations', uselist = False)
     user  =  db.relationship('User', back_populates  =  'reservations')
     def __repr__(self):
         return f"User: {self.user.email} Spot: {self.spot_id} (Res. id: {self.id})"

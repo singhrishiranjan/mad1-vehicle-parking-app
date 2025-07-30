@@ -43,12 +43,10 @@
 {% block script %}
 
 <script>
-    // Data from Flask passed via Jinja
     const labels = {{ labels|tojson }};
     const res_values = {{ res_values|tojson }};
     const cost_values = {{ cost_values|tojson }};
 
-    // First Chart - Reservation Data
     const ctx1 = document.getElementById('res_chart').getContext('2d');
     new Chart(ctx1, {
         type: 'bar',
@@ -72,7 +70,6 @@
         }
     });
 
-    // Second Chart - Cost Data
     const ctx2 = document.getElementById('cost_chart').getContext('2d');
     new Chart(ctx2, {
         type: 'bar',
