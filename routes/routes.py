@@ -271,6 +271,5 @@ def admin_summary():
     rev_counts_sorted = dict(sorted(rev_counts.items()))
     labels =[date for date in rev_counts_sorted.keys()]
     rev_values = [rev for rev in rev_counts_sorted.values()]
-    print(rev_counts_sorted)
 
     return render_template('admin/summary.html', reserved_spots = reserved_spots, unreserved_spots = unreserved_spots, labels = labels, rev_values = rev_values)
